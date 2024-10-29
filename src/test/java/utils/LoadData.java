@@ -1,6 +1,7 @@
 package utils;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -10,13 +11,12 @@ import java.util.List;
 public class LoadData {
 
     public static void main(String[] args) {
-        String filePath = "./src/test/resources/features/test1.feature"; // Cambia esto a tu archivo
-        String searchText = "@externaldata"; // Texto que deseas encontrar
-//        String newContent = "      "+"|usertest1|supertest102*|usetest@yopmail.com|";
-
+        String featureFilePath = "./src/test/resources/features";
+        String searchText = "@externaldata";
         try {
-            addLineBelowText_v3(filePath, searchText);
-            System.out.println("Línea añadida exitosamente.");
+            for (String filePath:getFeatureFilesList(featureFilePath)){
+                addLineBelowText_v3(filePath, searchText);
+            }
         } catch (IOException e) {
             System.err.println("Error al añadir la línea: " + e.getMessage());
         }
@@ -26,21 +26,15 @@ public class LoadData {
         Path path = Paths.get(filePath);
         List<String> lines = Files.readAllLines(path);
 
-        // Buscar el texto y añadir la nueva línea debajo
         for (int i = 0; i < lines.size(); i++) {
             if (lines.get(i).contains(searchText)) {
                 String[] command = lines.get(i).split("@");
-//                lines.add(i + 1, getData(command[3])); // Añadir debajo de la línea encontrada
                 ArrayList<String> data = ManagementExcel.rearExcel_v2(command[2], command[3]);
                 for (int j = 0; j < data.size(); j++) {
                     lines.add(i+j+1, "      "+data.get(j));
                 }
-//                lines.add(i + 1, newContent); // Añadir debajo de la línea encontrada
-//                break; // Salir después de encontrar la primera ocurrencia
             }
         }
-
-        // Escribir el contenido de nuevo al archivo
         Files.write(path, lines);
     }
 
@@ -63,28 +57,37 @@ public class LoadData {
 
     public static void addLineBelowText_v3(String filePath, String searchText) throws IOException {
         Path path = Paths.get(filePath);
-
-        // Leer todas las líneas del archivo
         List<String> lines = Files.readAllLines(path);
-        List<String> modifiedLines = new ArrayList<>(lines); // Crear una lista para las líneas modificadas
-
-        // Buscar el texto y añadir las nuevas líneas debajo
         for (int i = 0; i < lines.size(); i++) {
             if (lines.get(i).contains(searchText)) {
                 String[] command = lines.get(i).split("@");
-
-                // Obtener los datos que se van a añadir
                 ArrayList<String> data = ManagementExcel.rearExcel_v2(command[2], command[3]);
                 for (String line : data) {
-                    lines.add(i + 1, "      " + line); // Añadir debajo de la línea encontrada
-                    i++; // Incrementar el índice para evitar conflictos con el índice original
+                    lines.add(i + 1, "      " + line);
+                    i++;
                 }
             }
         }
-
-        // Escribir el contenido de nuevo al archivo
         Files.write(path, lines);
     }
 
+    public static ArrayList<String> getFeatureFilesList(String pathFile){
+        ArrayList<String> featureFilesList = new ArrayList<>();
+        try {
+            File folder = new File(pathFile);
+            if(folder.getName().endsWith(".feature")){
+                featureFilesList.add(folder.getPath());
+            } else if (folder.getName().endsWith("features") && folder.isDirectory() && folder.listFiles().length > 0) {
+                for(File file:folder.listFiles()){
+                    if(file.getName().endsWith(".feature")){
+                        featureFilesList.add(file.getPath());
+                    }
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return featureFilesList;
+    }
 }
 

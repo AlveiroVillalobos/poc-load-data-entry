@@ -5,12 +5,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class ManagementExcel {
     public static void main(String[] args) {
         String rutaArchivo = "./src/test/resources/dataEntry.xlsx"; // Cambia esto por la ruta de tu archivo
-//        rearExcel(rutaArchivo);
         System.out.println("print arraylist");
         rearExcel_v2(rutaArchivo, "test1").forEach((d) -> {System.out.println(d);});
     }
@@ -64,6 +64,10 @@ public class ManagementExcel {
             Workbook workbook = new XSSFWorkbook(fis);
 
             Sheet sheet = workbook.getSheet(sheetName); // Lee la primera hoja
+            if (sheet == null) {
+                System.out.println("La hoja con el nombre '" + sheetName + "' no existe.");
+                return data;
+            }
 
             for (Row row : sheet) {
                 boolean filaNoVacia = false; // Bandera para verificar si la fila tiene celdas no vacías
@@ -77,8 +81,15 @@ public class ManagementExcel {
                                 System.out.print("|" + cell.getStringCellValue() + "\t");
                                 break;
                             case NUMERIC:
-                                line = line + "|" + cell.getNumericCellValue();
-                                System.out.print("|" + cell.getNumericCellValue() + "\t");
+                                if (DateUtil.isCellDateFormatted(cell)) {
+                                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                                    String formattedDate = dateFormat.format(cell.getDateCellValue());
+                                    line = line + "|" + formattedDate;
+                                    System.out.print("|" + formattedDate + "\t");
+                                } else {
+                                    line = line + "|" + cell.getNumericCellValue();
+                                    System.out.print("|" + cell.getNumericCellValue() + "\t");
+                                }
                                 break;
                             case BOOLEAN:
                                 line = line + cell.getBooleanCellValue();
@@ -101,7 +112,6 @@ public class ManagementExcel {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return data;
     }
 }

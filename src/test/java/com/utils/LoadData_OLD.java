@@ -1,4 +1,6 @@
-package utils;
+package com.utils;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,10 +10,21 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoadData {
+public class LoadData_OLD {
 
     public static void main(String[] args) {
         String featureFilePath = "./src/test/resources/features";
+        String searchText = "@externaldata";
+        try {
+            for (String filePath:getFeatureFilesList(featureFilePath)){
+                addLineBelowText_v3(filePath, searchText);
+            }
+        } catch (IOException e) {
+            System.err.println("Error al añadir la línea: " + e.getMessage());
+        }
+    }
+
+    public static void loadDataFromExcel(String featureFilePath){
         String searchText = "@externaldata";
         try {
             for (String filePath:getFeatureFilesList(featureFilePath)){
@@ -28,8 +41,10 @@ public class LoadData {
 
         for (int i = 0; i < lines.size(); i++) {
             if (lines.get(i).contains(searchText)) {
+                String[] headers = ArrayUtils.remove(lines.get(i-1)
+                        .replace(" ","").split("\\|"), 0);
                 String[] command = lines.get(i).split("@");
-                ArrayList<String> data = ManagementExcel.rearExcel_v2(command[2], command[3]);
+                ArrayList<String> data = ManagementExcel.rearExcel_v2(command[2], command[3], headers);
                 for (int j = 0; j < data.size(); j++) {
                     lines.add(i+j+1, "      "+data.get(j));
                 }
@@ -44,8 +59,10 @@ public class LoadData {
         List<String> addLines = new ArrayList<>(lines);
         for (int i = 0; i < addLines.size(); i++) {
             if (lines.get(i).contains(searchText)) {
+                String[] headers = ArrayUtils.remove(lines.get(i-1)
+                        .replace(" ","").split("\\|"), 0);
                 String[] command = lines.get(i).split("@");
-                ArrayList<String> data = ManagementExcel.rearExcel_v2(command[2], command[3]);
+                ArrayList<String> data = ManagementExcel.rearExcel_v2(command[2], command[3], headers);
                 for (String line : data) {
                     addLines.add(i + 1, "      " + line);
                     i++;
@@ -60,8 +77,11 @@ public class LoadData {
         List<String> lines = Files.readAllLines(path);
         for (int i = 0; i < lines.size(); i++) {
             if (lines.get(i).contains(searchText)) {
+                String[] headers = ArrayUtils.remove(lines.get(i-1)
+                        .replace(" ","").split("\\|"), 0);
+
                 String[] command = lines.get(i).split("@");
-                ArrayList<String> data = ManagementExcel.rearExcel_v2(command[2], command[3]);
+                ArrayList<String> data = ManagementExcel.rearExcel_v2(command[2], command[3], headers);
                 for (String line : data) {
                     lines.add(i + 1, "      " + line);
                     i++;

@@ -1,3 +1,4 @@
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -10,7 +11,7 @@ public class Test1Stepdefiniotions {
     }
 
     @When("step 2 test 1 feature")
-    public void test1Step2(){
+    public void test1Step2(DataTable dataTable){
         System.out.println("Test 1 step 3");
     }
 

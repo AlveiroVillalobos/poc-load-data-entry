@@ -1,3 +1,4 @@
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -10,7 +11,7 @@ public class TransferStepDefinitions {
     }
 
     @When("step 2 transfer test 1 feature")
-    public void transferTestStep2(){
+    public void transferTestStep2(DataTable dataTable){
         System.out.println("Transfer test step2");
     }
 

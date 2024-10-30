@@ -11,4 +11,5 @@ Feature: transfer feature
 
     Examples:
       | username | password | email | transferValue | bankName | dateTransfer |
-    ##@externaldata@./src/test/resources/dataEntry.xlsx@transferTest2
+    ##@externaldata@./src/test/resources/dataEntry.xlsx@transferTest1
+      | username | password | email | transferValue | bankName | dateTransfer |

@@ -1,4 +1,4 @@
-package utils;
+package com.utils;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -12,7 +12,7 @@ public class ManagementExcel {
     public static void main(String[] args) {
         String rutaArchivo = "./src/test/resources/dataEntry.xlsx"; // Cambia esto por la ruta de tu archivo
         System.out.println("print arraylist");
-        rearExcel_v2(rutaArchivo, "test1").forEach((d) -> {System.out.println(d);});
+//        rearExcel_v2(rutaArchivo, "test1").forEach((d) -> {System.out.println(d);});
     }
 
     public static void rearExcel(String filePath) {
@@ -54,10 +54,10 @@ public class ManagementExcel {
         }
     }
 
-    public static ArrayList<String> rearExcel_v2(String filePath, String sheetName) {
+    public static ArrayList<String> rearExcel_v2(String filePath, String sheetName, String[] headers) {
 
         ArrayList<String> data = new ArrayList<String>();
-        String line = "";
+        StringBuilder line = new StringBuilder();
 
         try{
             FileInputStream fis = new FileInputStream(filePath);
@@ -71,28 +71,33 @@ public class ManagementExcel {
 
             for (Row row : sheet) {
                 boolean filaNoVacia = false; // Bandera para verificar si la fila tiene celdas no vacías
+                if (row.getRowNum() == 0){
+                    if(!validateHeaders(row, headers)){
+                        System.exit(1);
+                    }
+                }
                 for (Cell cell : row) {
                     // Verifica si la celda no está vacía
                     if (cell != null && cell.getCellType() != CellType.BLANK && row.getRowNum() != 0) {
                         filaNoVacia = true; // La fila tiene al menos una celda no vacía
                         switch (cell.getCellType()) {
                             case STRING:
-                                line = line + "|" + cell.getStringCellValue();
+                                line.append("|").append(cell.getStringCellValue());
                                 System.out.print("|" + cell.getStringCellValue() + "\t");
                                 break;
                             case NUMERIC:
                                 if (DateUtil.isCellDateFormatted(cell)) {
                                     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
                                     String formattedDate = dateFormat.format(cell.getDateCellValue());
-                                    line = line + "|" + formattedDate;
+                                    line.append("|").append(formattedDate);
                                     System.out.print("|" + formattedDate + "\t");
                                 } else {
-                                    line = line + "|" + cell.getNumericCellValue();
+                                    line.append("|").append(cell.getNumericCellValue());
                                     System.out.print("|" + cell.getNumericCellValue() + "\t");
                                 }
                                 break;
                             case BOOLEAN:
-                                line = line + cell.getBooleanCellValue();
+                                line.append(cell.getBooleanCellValue());
                                 System.out.print("|" + cell.getBooleanCellValue() + "\t");
                                 break;
                             default:
@@ -102,9 +107,9 @@ public class ManagementExcel {
                 }
 
                 if (filaNoVacia) {
-                    line = line + "|";
-                    data.add(line);
-                    line = "";
+                    line.append("|");
+                    data.add(line.toString());
+                    line = new StringBuilder();
                     System.out.println("|");
                     System.out.println(); // Nueva línea para cada fila no vacía
                 }
@@ -113,5 +118,19 @@ public class ManagementExcel {
             e.printStackTrace();
         }
         return data;
+    }
+
+    public static boolean validateHeaders(Row row, String[] headers){
+        boolean validateHeaders = false;
+        for (int i = 0; i < headers.length; i++) {
+            if (!row.getCell(i).getStringCellValue().equals(headers[i])){
+                System.out.println("no existe este titulo de celda");
+                validateHeaders = false;
+            }else {
+                System.out.println("titulo OK");
+                validateHeaders = true;
+            }
+        }
+        return validateHeaders;
     }
 }
